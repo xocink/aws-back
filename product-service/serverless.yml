@@ -62,12 +62,22 @@ provider:
 #    - include-me-dir/**
 
 functions:
+  createProductOptions:
+    handler: handler.createProductOptions
+    events:
+      - httpApi:
+          path: /products
+          method: options
+          cors:
+            origin: '*'
   createProduct:
     handler: handler.createProduct
     events:
       - httpApi:
           path: /products
           method: post
+          cors:
+            origin: '*'
   getProductsList:
     handler: handler.getProductsList
     events:

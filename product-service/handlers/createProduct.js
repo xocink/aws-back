@@ -31,8 +31,7 @@ function validateData(product) {
 const createProduct = async (event) => {
   const id = uuidv4();
   const data = JSON.parse(event.body);
-  console.log(data)
-  const {valid,message} = validateData(data);
+  const {valid, message} = validateData(data);
 
   if (!valid) {
     return {
@@ -59,8 +58,9 @@ const createProduct = async (event) => {
 
   return {
     headers: {
+      'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+      'Access-Control-Allow-Methods': '*',
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true,
     },
     statusCode: 200,
     body: JSON.stringify(message),
