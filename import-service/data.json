@@ -1,0 +1,15 @@
+{
+  "Records": [
+    {
+      "s3": {
+        "bucket": {
+          "name": "aws-task5-bucket"
+        },
+        "object": {
+          "key": "uploaded/test.csv",
+          "size": 12345
+        }
+      }
+    }
+  ]
+}
