@@ -16,9 +16,16 @@ provider:
   environment:
     PRODUCTS_TABLE: 'aws_courses_products'
     PRODUCTS_STOCK_TABLE: 'AWS_courses_stocks'
+    SQS_URL:
+      Ref: CatalogItemsQueue
   iam:
     role:
       statements:
+        - Effect: "Allow"
+          Action:
+            - sns:Publish
+            - sns:Subscribe
+          Resource: !Ref createProductTopic
         - Effect: "Allow"
           Action:
             - dynamodb:Query
@@ -30,36 +37,39 @@ provider:
           Resource:
             - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.PRODUCTS_TABLE}"
             - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.PRODUCTS_STOCK_TABLE}"
+        - Effect: "Allow"
+          Action:
+            - sqs:SendMessage
+          Resource:
+            Fn::GetAtt:
+              - CatalogItemsQueue
+              - Arn
 
-# you can add statements to the Lambda function's IAM Role here
-#  iam:
-#    role:
-#      statements:
-#        - Effect: "Allow"
-#          Action:
-#            - "s3:ListBucket"
-#          Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#        - Effect: "Allow"
-#          Action:
-#            - "s3:PutObject"
-#          Resource:
-#            Fn::Join:
-#              - ""
-#              - - "arn:aws:s3:::"
-#                - "Ref" : "ServerlessDeploymentBucket"
-#                - "/*"
-
-# you can define service wide environment variables here
-#  environment:
-#    variable1: value1
-
-# you can add packaging information here
-#package:
-#  patterns:
-#    - '!exclude-me.js'
-#    - '!exclude-me-dir/**'
-#    - include-me.js
-#    - include-me-dir/**
+resources:
+  Resources:
+    CatalogItemsQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: aws-courses-task-queue
+    createProductTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: createProductTopic
+    createProductTopicSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Protocol: email
+        Endpoint: petukhdzmitry@gmail.com
+        TopicArn: !Ref createProductTopic
+  Outputs:
+    CatalogItemsQueueArn:
+      Description: "Arn CatalogItemsQueue for import in import service"
+      Value:
+        Fn::GetAtt:
+          - CatalogItemsQueue
+          - Arn
+      Export:
+        Name: CatalogItemsQueueArn
 
 functions:
   createProductOptions:
@@ -68,16 +78,12 @@ functions:
       - httpApi:
           path: /products
           method: options
-          cors:
-            origin: '*'
   createProduct:
     handler: handler.createProduct
     events:
       - httpApi:
           path: /products
           method: post
-          cors:
-            origin: '*'
   getProductsList:
     handler: handler.getProductsList
     events:
@@ -90,3 +96,14 @@ functions:
       - httpApi:
           path: /product/{id}
           method: get
+  catalogBatchProcess:
+    handler: handler.catalogBatchProcess
+    environment:
+      SNS_TOPIC_ARN: !Ref createProductTopic
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - CatalogItemsQueue
+              - Arn
+          batchSize: 5

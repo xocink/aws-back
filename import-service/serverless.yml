@@ -8,6 +8,7 @@ provider:
   profile: default
   environment:
     BUCKET_NAME: 'aws-task5-bucket'
+    SQS_URL: 'https://sqs.eu-west-1.amazonaws.com/035831456938/aws-courses-task-queue'
   iam:
     role:
       statements:
@@ -15,6 +16,12 @@ provider:
           Action:
             - s3:*
           Resource: "arn:aws:s3:::${self:provider.environment.BUCKET_NAME}/*"
+
+        - Effect: "Allow"
+          Action:
+            - sqs:SendMessage
+          Resource:
+            Fn::ImportValue: CatalogItemsQueueArn
 
 functions:
   importProductsFile:

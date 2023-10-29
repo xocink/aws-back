@@ -6,7 +6,7 @@
           "name": "aws-task5-bucket"
         },
         "object": {
-          "key": "uploaded/test.csv",
+          "key": "uploaded/test1.csv",
           "size": 12345
         }
       }
