@@ -4,7 +4,7 @@ const s3 = new AWS.S3({ region: 'eu-west-1' });
 const BUCKET_NAME = process.env.BUCKET_NAME;
 const importProductsFile = async (event) => {
   const origin = event.headers.origin;
-  const allowedOrigins = ['https://d1gkqiqw3e8jb3.cloudfront.net/', 'http://localhost:3000'];
+  const allowedOrigins = ['https://d1gkqiqw3e8jb3.cloudfront.net', 'http://localhost:3000'];
   try {
     const fileName = event.queryStringParameters.name;
     const filePath = `uploaded/${fileName}`;
