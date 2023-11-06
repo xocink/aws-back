@@ -22,18 +22,30 @@ provider:
             - sqs:SendMessage
           Resource:
             Fn::ImportValue: CatalogItemsQueueArn
+        - Effect: "Allow"
+          Action:
+            - "logs:CreateLogGroup"
+            - "logs:CreateLogStream"
+            - "logs:PutLogEvents"
+          Resource: "arn:aws:logs:*:*:*"
 
 functions:
   importProductsFile:
     handler: handler.importProductsFile
     events:
-      - httpApi:
+      - http:
           path: /import
           method: get
+          cors: true
           request:
             parameters:
               queryStrings:
                 name: true
+          authorizer:
+            name: basicAuthorizer
+            arn: "arn:aws:lambda:eu-west-1:035831456938:function:authorization-service-dev-basicAuthorizer"
+            identitySource: method.request.header.Authorization
+            type: token
   importFileParser:
     handler: handler.importFileParser
     events:

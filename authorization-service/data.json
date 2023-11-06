@@ -1,0 +1,5 @@
+{
+  "type": "TOKEN",
+  "authorizationToken": "Basic eG9jaW5rOlRFU1RfUEFTU1dPUkQ=",
+  "methodArn": "arn:aws:execute-api:region:account-id:api-id/stage/method/resourcePath"
+}
